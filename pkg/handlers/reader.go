@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
 	"github.com/SergioCB20/RutaEdu-Backend/pkg/models"
 )
 
 var courses []models.Course
 
 func ReadCurriculumGrid(w http.ResponseWriter, r *http.Request) {
+	courses = make([]models.Course, 0)
 	w.Header().Set("Content-Type", "application/json")
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -25,24 +25,24 @@ func ReadCurriculumGrid(w http.ResponseWriter, r *http.Request) {
 	}
 	err = json.Unmarshal(bodyBytes, &requestData)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error() + " :en la convesión JSON-Objeto", http.StatusBadRequest)
 		return
 	}
 	csvReader := csv.NewReader(strings.NewReader(requestData.CsvData))
 	records, err := csvReader.ReadAll()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error() + " :en el ReadAll", http.StatusBadRequest)
 		return
 	}
 	for _, record := range records {
 		level, err := strconv.Atoi(record[0])
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error()+ " :en la convesión a int", http.StatusBadRequest)
 			return
 		}
 		credits, err := strconv.ParseFloat(record[3],64)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error()+ " :en la convesión a float", http.StatusBadRequest)
 			return
 		}
 		course := models.Course{
